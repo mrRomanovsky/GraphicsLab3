@@ -1,0 +1,8 @@
+*bin*
+*obj*
+*exe
+*Debug*
+*vs*
+*sqlite*
+.vs
+.vs/
