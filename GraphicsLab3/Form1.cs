@@ -16,5 +16,13 @@ namespace GraphicsLab3
         {
             InitializeComponent();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Bitmap image = (Bitmap)Bitmap.FromFile(textBox1.Text);
+            var task2 = new Task2();
+            task2.DrawImage(image);
+            task2.ShowDialog();
+        }
     }
 }
