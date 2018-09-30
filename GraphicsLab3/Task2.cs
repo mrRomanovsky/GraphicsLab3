@@ -51,20 +51,19 @@ namespace GraphicsLab3
         {
             List<Point> points = new List<Point>();
             var start = imge.GetPixel(x, y);
-            var nextPixel = imge.GetPixel(x, y + 1);
-
+            int nextY = imge.Height - 1;
+            var nextPixel = imge.GetPixel(x, nextY);
             baseColor = start;
 
-            while (equal(start, nextPixel))
+            while (!equal(start, nextPixel))
             {
-                y += 1;
-                start = imge.GetPixel(x, y);
-                nextPixel = imge.GetPixel(x, y + 1);
+                --nextY;
+                nextPixel = imge.GetPixel(x, nextY);
             }
 
             int dir = 8;
             int prevDir = dir;
-            Point startPoint = new Point(x, y + 1);
+            Point startPoint = new Point(x, nextY + 1);
             Point nextPoint = startPoint;
             while (true)
             {
@@ -107,12 +106,33 @@ namespace GraphicsLab3
             foreach (Point pt in points)
                 imgeClone.SetPixel(pt.X, pt.Y, Color.Red);
             pictureBox1.Image = imgeClone;
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                var newColor = colorDialog1.Color;
+                points = points.OrderBy(p => p.Y).ThenBy(p => p.X).ToList();
+                for (int i = 0; i < points.Count - 1; ++i)
+                {
+                    if (points[i].Y == points[i + 1].Y)
+                        fillColor(imgeClone, points[i], points[i + 1], newColor);
+                }
+            }
+            pictureBox1.Image = imgeClone;
+        }
+
+        private void fillColor(Bitmap image, Point rowStart, Point rowEnd, Color col)
+        {
+            int y = rowStart.Y;
+            int x1 = rowStart.X;
+            int x2 = rowEnd.X;
+            var brush = new Pen(col, 1);
+            if (x1 < x2 && image.GetPixel(x1 + 1, y) == baseColor)
+            using (var graphics = Graphics.FromImage(image))
+                graphics.DrawLine(brush, x1, y, x2, y);
         }
 
         private List<Point> findAllBorders(Point location)
         {
             var points = findBorder(location.X, location.Y);
-
             var checkPoints = points.OrderByDescending(p => p.Y).ToArray();
 
             for (var i = 0; i < checkPoints.Length; i++)
@@ -175,7 +195,13 @@ namespace GraphicsLab3
 
         bool equal(Color c1, Color c2)
         {
-            return (System.Math.Abs(c1.R - c2.R) + System.Math.Abs(c1.G - c2.G) + System.Math.Abs(c1.B - c2.B)) < 100;
+            return
+                c1 == c2; //(System.Math.Abs(c1.R - c2.R) + System.Math.Abs(c1.G - c2.G) + System.Math.Abs(c1.B - c2.B)) < 100;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
