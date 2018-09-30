@@ -1,4 +1,6 @@
-﻿namespace GraphicsLab3
+﻿using System;
+
+namespace GraphicsLab3
 {
     partial class Task1
     {
@@ -48,6 +50,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.clear = new System.Windows.Forms.Button();
+            this.labelPathForSecondPic = new System.Windows.Forms.Label();
+            this.buttonSetPathToPic = new System.Windows.Forms.Button();
+            this.textBoxPathToPic = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -98,6 +104,7 @@
             this.label1.Size = new System.Drawing.Size(16, 19);
             this.label1.TabIndex = 3;
             this.label1.Text = "R";
+            part1Components.Add(this.label1);
             // 
             // label2
             // 
@@ -108,6 +115,7 @@
             this.label2.Size = new System.Drawing.Size(17, 19);
             this.label2.TabIndex = 4;
             this.label2.Text = "G";
+            part1Components.Add(this.label2);
             // 
             // label3
             // 
@@ -118,6 +126,7 @@
             this.label3.Size = new System.Drawing.Size(16, 19);
             this.label3.TabIndex = 5;
             this.label3.Text = "B";
+            part1Components.Add(this.label3);
             // 
             // rFill
             // 
@@ -126,6 +135,7 @@
             this.rFill.Size = new System.Drawing.Size(100, 20);
             this.rFill.TabIndex = 6;
             this.rFill.Text = "50";
+            part1Components.Add(this.rFill);
             // 
             // gFill
             // 
@@ -134,6 +144,7 @@
             this.gFill.Size = new System.Drawing.Size(100, 20);
             this.gFill.TabIndex = 7;
             this.gFill.Text = "50";
+            part1Components.Add(this.gFill);
             // 
             // bFill
             // 
@@ -142,6 +153,7 @@
             this.bFill.Size = new System.Drawing.Size(100, 20);
             this.bFill.TabIndex = 8;
             this.bFill.Text = "50";
+            part1Components.Add(this.bFill);
             // 
             // setColorFill
             // 
@@ -156,6 +168,7 @@
             this.setColorFill.Text = "Установить";
             this.setColorFill.UseVisualStyleBackColor = false;
             this.setColorFill.Click += new System.EventHandler(this.SetFillColor_Click);
+            part1Components.Add(this.setColorFill);
             // 
             // guideline
             // 
@@ -186,6 +199,48 @@
             this.label6.Size = new System.Drawing.Size(103, 12);
             this.label6.TabIndex = 12;
             this.label6.Text = "Цвет для заливки";
+            part1Components.Add(this.label6);
+            // 
+            // pathForSecondPic
+            // 
+            this.labelPathForSecondPic.AutoSize = true;
+            this.labelPathForSecondPic.Font = new System.Drawing.Font("Muller Thin", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.labelPathForSecondPic.Location = new System.Drawing.Point(625, 321);
+            this.labelPathForSecondPic.Name = "pathForSecondPic";
+            this.labelPathForSecondPic.Size = new System.Drawing.Size(103, 12);
+            this.labelPathForSecondPic.TabIndex = 12;
+            this.labelPathForSecondPic.Text = "Путь к картинке для заливки";
+            this.labelPathForSecondPic.Visible = false;
+            this.labelPathForSecondPic.Enabled = false;
+            part2Components.Add(this.labelPathForSecondPic);
+            // 
+            // setPathToPic
+            // 
+            this.buttonSetPathToPic.BackColor = System.Drawing.Color.DimGray;
+            this.buttonSetPathToPic.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonSetPathToPic.Font = new System.Drawing.Font("Muller Thin", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonSetPathToPic.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.buttonSetPathToPic.Location = new System.Drawing.Point(653, 385);
+            this.buttonSetPathToPic.Name = "setPathToPic";
+            this.buttonSetPathToPic.Size = new System.Drawing.Size(83, 23);
+            this.buttonSetPathToPic.TabIndex = 19;
+            this.buttonSetPathToPic.Text = "Установить";
+            this.buttonSetPathToPic.UseVisualStyleBackColor = false;
+            this.buttonSetPathToPic.Visible = false;
+            this.buttonSetPathToPic.Enabled = false;
+            this.buttonSetPathToPic.Click += new System.EventHandler(this.setPathToPic_Click);
+            part2Components.Add(this.buttonSetPathToPic);
+            // 
+            // pathToPic
+            // 
+            this.textBoxPathToPic.Location = new System.Drawing.Point(636, 350);
+            this.textBoxPathToPic.Name = "pathToPic";
+            this.textBoxPathToPic.Size = new System.Drawing.Size(117, 20);
+            this.textBoxPathToPic.TabIndex = 18;
+            //this.textBoxPathToPic.Text = "0";
+            this.textBoxPathToPic.Visible = false;
+            this.textBoxPathToPic.Enabled = false;
+            part2Components.Add(this.textBoxPathToPic);
             // 
             // setColorBorder
             // 
@@ -255,11 +310,26 @@
             this.label9.TabIndex = 13;
             this.label9.Text = "R";
             // 
+            // clear
+            // 
+            this.clear.BackColor = System.Drawing.Color.Black;
+            this.clear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.clear.Font = new System.Drawing.Font("Muller Thin", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.clear.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.clear.Location = new System.Drawing.Point(653, 499);
+            this.clear.Name = "clear";
+            this.clear.Size = new System.Drawing.Size(83, 23);
+            this.clear.TabIndex = 20;
+            this.clear.Text = "Очистить";
+            this.clear.UseVisualStyleBackColor = false;
+            this.clear.Click += new System.EventHandler(this.clear_Click);
+            // 
             // Task1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 549);
+            this.Controls.Add(this.clear);
             this.Controls.Add(this.setColorBorder);
             this.Controls.Add(this.bBorder);
             this.Controls.Add(this.gBorder);
@@ -280,6 +350,9 @@
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.part2);
             this.Controls.Add(this.part1);
+            this.Controls.Add(this.labelPathForSecondPic);
+            this.Controls.Add(this.buttonSetPathToPic);
+            this.Controls.Add(this.textBoxPathToPic);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -290,6 +363,8 @@
             this.PerformLayout();
 
         }
+
+      
 
         #endregion
 
@@ -313,5 +388,9 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button clear;
+        private System.Windows.Forms.Label labelPathForSecondPic;
+        private System.Windows.Forms.TextBox textBoxPathToPic;
+        private System.Windows.Forms.Button buttonSetPathToPic;
     }
 }

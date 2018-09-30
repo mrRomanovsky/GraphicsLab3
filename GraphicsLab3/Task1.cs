@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,108 +14,170 @@ namespace GraphicsLab3
 {
     public partial class Task1 : Form
     {
-        private Pen borderPen = new Pen(Color.FromArgb(0, 0, 0));
+        private string ppath;
+        private Pen borderPen = new Pen(Color.FromArgb(0, 0, 0), (float)1);
         private Color fillColor = Color.FromArgb(50, 50, 50);
         private Color paintedСolor;
-        //private bool createBorder = false;
+        private bool isPart2 = false;
         private Point startPixel;
         private Bitmap original;
         private Graphics g;
-        private Point[] pointsBorder;
-        private ZoomingParametrs zoomingParametrs;
+        private List<Point> pointsBorder = new List<Point>();
+        private List<System.Windows.Forms.Control> part1Components;
+        private List<System.Windows.Forms.Control> part2Components;
 
         public Task1(string path)
         {
+            part1Components = new List<Control>();
+            part2Components = new List<Control>();
             InitializeComponent();
+            ppath = path;
             original = (Bitmap)Bitmap.FromFile(path);
             pictureBox1.Image = original;
-          //  pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             g = Graphics.FromImage(pictureBox1.Image);
-            zoomingParametrs = new ZoomingParametrs(pictureBox1.Image.Size, pictureBox1.ClientSize);
         }
 
-        private void Part1_Click(object sender, EventArgs e)
-        {
-            part1.BackColor = Color.DimGray;
-            part2.BackColor = Color.Silver;
-        }
+        #region part2
+        private Bitmap pic2;
+        private string ppath2;
+        Graphics g2;
 
         private void Part2_Click(object sender, EventArgs e)
         {
+            isPart2 = true;
             part1.BackColor = Color.Silver;
             part2.BackColor = Color.DimGray;
+            foreach (var item in part1Components)
+            {
+                item.Enabled = false;
+                item.Visible = false;
+            }
+            foreach (var item in part2Components)
+            {
+                item.Enabled = true;
+                item.Visible = true;
+            }
+            original = (Bitmap)Bitmap.FromFile(ppath);
+            pictureBox1.Image = original;
+            g = Graphics.FromImage(pictureBox1.Image);
+            guideline.Text = "Введите путь к файлу заливки...";
+            this.Refresh();
+        }
+
+        private void setPathToPic_Click(object sender, EventArgs e)
+        {
+            ppath2 = textBoxPathToPic.Text;
+            pic2 =  (Bitmap)Bitmap.FromFile(ppath2);
+            guideline.Text = "Обведите область заливки...";
+        }
+
+        void FillPartSecond(Point p, ref List<IGrouping<int, Point>> pl)
+        {
+            var zp = new Point(-1, -1);
+            IEnumerable<IGrouping<int, Point>> t;
+            if (p.X < 0 || p.Y < 0 || p.X > pictureBox1.Width || p.Y > pictureBox1.Height || ((Bitmap)pictureBox1.Image).GetPixel(p.X, p.Y) != paintedСolor)
+                return;
+            var lb = FindLeftBorder(p);
+            Point rb = zp;
+            var pp = lb;
+            pp.X++;
+            Point lastP = zp;
+            if (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)
+                lastP = pp;
+            while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && pp != rb && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)//|| ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) != borderPen.Color))//
+            {
+                original.SetPixel(pp.X, pp.Y, pic2.GetPixel(pp.X % pic2.Width, pp.Y % pic2.Height));
+                pp.X++;
+            }
+            pictureBox1.Refresh();
+            while (lastP != new Point(pp.X - 1, pp.Y))
+            {
+                if (lastP.Y + 1 < pictureBox1.Height)
+                    FillPartSecond(new Point(lastP.X, lastP.Y + 1), ref pl);
+                if (lastP.Y - 1 > 0)
+                    FillPartSecond(new Point(lastP.X, lastP.Y - 1), ref pl);
+                lastP.X++;
+            }
+        }
+
+        #endregion
+
+        #region part1
+        private void Part1_Click(object sender, EventArgs e)
+        {
+            isPart2 = false;
+            part1.BackColor = Color.DimGray;
+            part2.BackColor = Color.Silver;
+            foreach (var item in part2Components)
+            {
+                item.Enabled = false;
+                item.Visible = false;
+            }
+            foreach (var item in part1Components)
+            {
+                item.Enabled = true;
+                item.Visible = true;
+            }
+            original = (Bitmap)Bitmap.FromFile(ppath);
+            pictureBox1.Image = original;
+            g = Graphics.FromImage(pictureBox1.Image);
+            guideline.Text = "Обведите область заливки...";
+            this.Refresh();
         }
 
         private void SetFillColor_Click(object sender, EventArgs e)
         {
             fillColor = Color.FromArgb(int.Parse(rFill.Text), int.Parse(gFill.Text), int.Parse(bFill.Text));
-            //if (!createBorder)
-            //{
-            //    guideline.Text = "Выделите границу!";
-            //    return;
-            //}
-            //if (startPixel == null)
-            //{
-            //    guideline.Text = "Выберите начальный пиксель";
-            //    return;
-            //}
-            //FirstPartFilling();
         }
 
-        void FindBorder(int currPoint,ref List<IGrouping<int, Point>> pl)
+        private Point FindLeftBorder(Point p)
         {
-            List<Point> l = new List<Point>();
-            //  var pl = pointsBorder.ToList().GroupBy(p => p.Y);
+            while (p.X > 0 && ((Bitmap)pictureBox1.Image).GetPixel(p.X, p.Y) == paintedСolor)
+                p.X--;
 
-            //   foreach (var gr in pl)
-            // {
-            IEnumerable<IGrouping<int, Point>> t;
-            if ((t = pl.Where(x => x.Key == currPoint)).Count() != 0)
-            {
-                var item = t.First().ToList().OrderBy(p => p.X).Distinct().ToList();
-                pl.Remove(pl.Where(x => x.Key == currPoint).First());
-                for (int i = 0; i < item.Count() - 1; i++)
-                {
-                    var pp = item[i];
-                    pp.X++;
-                    var lastp = pp;
-                    while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && pp != item.ToList()[i + 1])
-                    {
-                        var c = ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y);
-                        if (c != paintedСolor)
-                        {
-                            l.Add(pp);
-                            g.DrawLine(new Pen(fillColor), lastp, new Point(pp.X - 1, pp.Y));
-                            while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height &&
-                                ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) != paintedСolor && pp != item.ToList()[i + 1])
-                                pp.X++;
-                            if (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)
-                            {
-                                l.Add(new Point(pp.X - 1, pp.Y));
-                                lastp = pp;
-                            }
-                        }
-                        pp.X++;
-                    }
-                    g.DrawLine(new Pen(fillColor), lastp, new Point(pp.X - 1, pp.Y));
-                    pictureBox1.Refresh();
-                }
-            }
-            var succ = pl.Where(p=>p.Key > currPoint);
-            if (succ.Count() != 0)
-                FindBorder(succ.First().Key, ref pl);
-            var pred = pl.Where(p => p.Key < currPoint);
-            if (pred.Count() != 0)
-                FindBorder(pred.Last().Key, ref pl);
+            return p;
         }
 
-        private void FirstPartFilling()
+        void FillPartFirst(Point p, ref List<IGrouping<int, Point>> pl)
+        {
+            var zp = new Point(-1, -1);
+            IEnumerable<IGrouping<int, Point>> t;
+            if (p.X < 0 || p.Y < 0 || p.X > pictureBox1.Width || p.Y > pictureBox1.Height || ((Bitmap)pictureBox1.Image).GetPixel(p.X, p.Y) != paintedСolor)
+                return;
+            var lb = FindLeftBorder(p);
+            Point rb = zp;
+            var pp = lb;
+            pp.X++;
+            Point lastP = zp;
+            if (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)
+                lastP = pp;
+            while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && pp != rb && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)//|| ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) != borderPen.Color))//
+                pp.X++;
+            if (lastP != zp)
+                g.DrawLine(new Pen(fillColor), lastP, new Point(pp.X - 1, pp.Y));
+            pictureBox1.Refresh();
+            while (lastP != new Point(pp.X - 1, pp.Y))
+            {
+                if (lastP.Y + 1 < pictureBox1.Height)
+                    FillPartFirst(new Point(lastP.X, lastP.Y + 1), ref pl);
+                if (lastP.Y - 1 > 0)
+                    FillPartFirst(new Point(lastP.X, lastP.Y - 1), ref pl);
+                lastP.X++;
+            }
+        }
+        #endregion
+
+        private void Fill()
         {
             Point currPoint = startPixel;
-            var pl = pointsBorder.ToList().GroupBy(p => p.Y).OrderBy(p=>p.Key).ToList();
-            FindBorder(currPoint.Y, ref pl);
+            if (paintedСolor == fillColor)
+                return;
+            var pl = pointsBorder.ToList().GroupBy(p => p.Y).OrderBy(p => p.Key).ToList();
+            if (!isPart2)
+                FillPartFirst(startPixel, ref pl);
+            else
+                FillPartSecond(startPixel, ref pl);
             pictureBox1.Refresh();
-            //throw new NotImplementedException();
         }
 
         private void SetColorBorder_Click(object sender, EventArgs e)
@@ -124,12 +187,16 @@ namespace GraphicsLab3
 
         void pictureBox1_MainPaint(object sender, PaintEventArgs e)
         {
-            //throw new NotImplementedException();
         }
 
         void pictureBox1_BorderPaint(object sender, PaintEventArgs e)
         {
-            g.DrawCurve(borderPen, pointsBorder);
+            if (pointsBorder.Count() < 2)
+            {
+                guideline.Text = "Обведите область заливки...";
+                return;
+            }
+            g.DrawCurve(borderPen, pointsBorder.ToArray());
         }
 
         void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -145,15 +212,13 @@ namespace GraphicsLab3
             {
                 pictureBox1.Paint -= pictureBox1_FillPaint;
                 pictureBox1.Paint += pictureBox1_MainPaint;
-                FirstPartFilling();
-                guideline.Text = "Все готово!";
+                guideline.Text = "Заливка...";
+                this.Refresh();
+                Fill();
+                guideline.Text = "Обведите область заливки...";
+                this.Refresh();
+
             }
-            //else if (guideline.Text == "Выберите стартовый пиксель заливки...")
-            //{
-            //    pictureBox1.Paint -= pictureBox1_FillPaint;
-            //    pictureBox1.Paint += pictureBox1_MainPaint;
-            //    guideline.Text = "Все готово!";
-            //}
         }
 
         void pictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -162,92 +227,87 @@ namespace GraphicsLab3
             {
                 pictureBox1.Paint -= pictureBox1_MainPaint;
                 pictureBox1.Paint += pictureBox1_BorderPaint;
-                pointsBorder = new Point[1] { e.Location };//zoomingParametrs.ConvertPointForPictureBox(pictureBox1.PointToClient(Cursor.Position)) }; 
+                pointsBorder = new List<Point> { e.Location };
             }
             else if (guideline.Text == "Выберите стартовый пиксель заливки...")
             {
                 pictureBox1.Paint -= pictureBox1_MainPaint;
                 pictureBox1.Paint += pictureBox1_FillPaint;
-                startPixel = e.Location;//zoomingParametrs.ConvertPointForPictureBox(pictureBox1.PointToClient(Cursor.Position));
-                paintedСolor = ((Bitmap)pictureBox1.Image).GetPixel(startPixel.X, startPixel.Y);// ((Bitmap)pictureBox1.Image).GetPixel(Cursor.Position.X, Cursor.Position.Y); 
+                startPixel = e.Location;
+                paintedСolor = ((Bitmap)pictureBox1.Image).GetPixel(startPixel.X, startPixel.Y);
                 var j = ((Bitmap)pictureBox1.Image).GetPixel(startPixel.X, startPixel.Y);
             }
         }
 
         private void pictureBox1_FillPaint(object sender, PaintEventArgs e)
         {
-            FirstPartFilling();
+            Fill();
         }
 
         void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (guideline.Text == "Обведите область заливки..." && e.Button == MouseButtons.Left)
+            if (guideline.Text == "Обведите область заливки..." && (e.Button == MouseButtons.Left))
             {
-                Array.Resize<Point>(ref pointsBorder, pointsBorder.Length + 1);
-                pointsBorder[pointsBorder.Length - 1] = e.Location;//zoomingParametrs.ConvertPointForPictureBox(pictureBox1.PointToClient(Cursor.Position));
-                if (pointsBorder.Length < 3) return;
+                int newY = e.Location.Y;
+                int oldY = pointsBorder.Last().Y;
+                int newX = e.Location.X;
+                int oldX = pointsBorder.Last().X;
+                if (Math.Abs(newY - oldY) > 1)
+                {
+
+                    int minY, maxY;
+                    int minX, maxX;
+                    if (newY < oldY)
+                    {
+                        minY = newY;
+                        maxY = oldY;
+                    }
+                    else
+                    {
+                        minY = oldY;
+                        maxY = newY;
+                    }
+                    if (newX < oldX)
+                    {
+                        minX = newX;
+                        maxX = oldX;
+                    }
+                    else
+                    {
+                        minX = oldX;
+                        maxX = newX;
+                    }
+
+                    while (minY < maxY)
+                    {
+                        pointsBorder.Add(new Point((minX + maxX) / 2, minY + 1));
+                        ++minX;
+                        ++minY;
+                    }
+                }
+                pointsBorder.Add(e.Location);
+                if (pointsBorder.Count < 3) return;
                 pictureBox1.Refresh();
             }
         }
 
-        class ZoomingParametrs
+        private void clear_Click(object sender, EventArgs e)
         {
-            private int widthImage;
-            private int heightImage;
-            private int widthContainer;
-            private int heightContainer;
-            private float imageRatio;
-            private float containerRatio;
-
-            public ZoomingParametrs(Size imageSize, Size containerSize)
-            {
-                widthImage = imageSize.Width;
-                heightImage = imageSize.Height;
-                widthContainer = containerSize.Width;
-                heightContainer = containerSize.Height;
-                imageRatio = widthImage / (float)heightImage; // image W:H ratio
-                containerRatio = widthContainer / (float)heightContainer; // container W:H ratio
-            }
-
-            public Point ConvertPointForPictureBox(Point p)
-            {
-              ///  Point p = pictureBox1.PointToClient(point);
-                Point unscaled_p = new Point();
-
-                if (imageRatio >= containerRatio)
-                {
-                    // horizontal image
-                    float scaleFactor = widthContainer / (float)widthImage;
-                    float scaledHeight = heightImage * scaleFactor;
-                    // calculate gap between top of container and top of image
-                    float filler = Math.Abs(heightContainer - scaledHeight) / 2;
-                    unscaled_p.X = (int)(p.X / scaleFactor);
-                    unscaled_p.Y = (int)((p.Y - filler) / scaleFactor);
-                }
-                else
-                {
-                    // vertical image
-                    float scaleFactor = heightContainer / (float)heightImage;
-                    float scaledWidth = widthImage * scaleFactor;
-                    float filler = Math.Abs(widthContainer - scaledWidth) / 2;
-                    unscaled_p.X = (int)((p.X - filler) / scaleFactor);
-                    unscaled_p.Y = (int)(p.Y / scaleFactor);
-                }
-                return unscaled_p;
-            }
+            original = (Bitmap)Bitmap.FromFile(ppath);
+            pictureBox1.Image = original;
+            g = Graphics.FromImage(pictureBox1.Image);
+            if (!isPart2)
+                guideline.Text = "Обведите область заливки...";
+            else
+                guideline.Text = "Введите путь к файлу заливки...";
+            this.Refresh();
         }
-        //void FillWithColor(Color color)
-        //{
-        //    Bitmap bmp;
-        //    if (pictureBox1.Image != null)
-        //        bmp = new Bitmap(pictureBox1.Image);
-        //    else
-        //        bmp = new Bitmap(pictureBox1.ClientSize.Width, pictureBox1.ClientSize.Height);
-        //    using (Graphics g = Graphics.FromImage(bmp))
-        //    {
-        //        g.FillPath(new SolidBrush(color), selectionBorder);
-        //    }
-        //    pictureBox1.Image = bmp;
-        //}
+    }
+
+    public struct PixelData
+    {
+        public byte blue;
+        public byte green;
+        public byte red;
     }
 }
