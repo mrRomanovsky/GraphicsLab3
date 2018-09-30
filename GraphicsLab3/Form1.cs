@@ -38,5 +38,11 @@ namespace GraphicsLab3
                     fillColor(image, border[i], border[i+1], Color.Blue);
             }
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var form = new Task1(textBox1.Text);
+            form.Show();
+        }
     }
 }
