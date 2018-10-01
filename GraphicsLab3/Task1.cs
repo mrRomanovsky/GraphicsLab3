@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,6 +26,8 @@ namespace GraphicsLab3
         private List<Point> pointsBorder = new List<Point>();
         private List<System.Windows.Forms.Control> part1Components;
         private List<System.Windows.Forms.Control> part2Components;
+        private byte[] pic2Pixels;
+        private int pic2Stride;
 
         public Task1(string path)
         {
@@ -60,6 +63,7 @@ namespace GraphicsLab3
             original = (Bitmap)Bitmap.FromFile(ppath);
             pictureBox1.Image = original;
             g = Graphics.FromImage(pictureBox1.Image);
+  
             guideline.Text = "Введите путь к файлу заливки...";
             this.Refresh();
         }
@@ -67,35 +71,44 @@ namespace GraphicsLab3
         private void setPathToPic_Click(object sender, EventArgs e)
         {
             ppath2 = textBoxPathToPic.Text;
-            pic2 =  (Bitmap)Bitmap.FromFile(ppath2);
+            pic2 = (Bitmap)Bitmap.FromFile(ppath2);
+            BitmapData bitmapData = pic2.LockBits(new Rectangle(0, 0, pic2.Width, pic2.Height), ImageLockMode.ReadOnly, pic2.PixelFormat);
+            pic2Stride = bitmapData.Stride;
+            int bytesPerPixel = Bitmap.GetPixelFormatSize(pic2.PixelFormat) / 8;
+            int byteCount = bitmapData.Stride * pic2.Height;
+            pic2Pixels = new byte[byteCount];
+            IntPtr ptrFirstPixel = bitmapData.Scan0;
+            Marshal.Copy(ptrFirstPixel, pic2Pixels, 0, pic2Pixels.Length);
+            pic2.UnlockBits(bitmapData);
             guideline.Text = "Обведите область заливки...";
         }
-
-        void FillPartSecond(Point p, ref List<IGrouping<int, Point>> pl)
+        void FillPartSecond(Point p)
         {
             var zp = new Point(-1, -1);
-            IEnumerable<IGrouping<int, Point>> t;
             if (p.X < 0 || p.Y < 0 || p.X > pictureBox1.Width || p.Y > pictureBox1.Height || ((Bitmap)pictureBox1.Image).GetPixel(p.X, p.Y) != paintedСolor)
                 return;
             var lb = FindLeftBorder(p);
-            Point rb = zp;
             var pp = lb;
             pp.X++;
             Point lastP = zp;
             if (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)
                 lastP = pp;
-            while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && pp != rb && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)//|| ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) != borderPen.Color))//
+            while (pp.X < pictureBox1.Width && pp.Y < pictureBox1.Height && ((Bitmap)pictureBox1.Image).GetPixel(pp.X, pp.Y) == paintedСolor)
             {
-                original.SetPixel(pp.X, pp.Y, pic2.GetPixel(pp.X % pic2.Width, pp.Y % pic2.Height));
+                int currentLine = pp.Y * pic2Stride;
+                int x = pic2Pixels[(currentLine + pp.X*3 + 1)%pic2Pixels.Length];
+                int y = pic2Pixels[(currentLine + pp.X*3) % pic2Pixels.Length];
+                int z = pic2Pixels[(currentLine + pp.X*3 + 2)% pic2Pixels.Length];
+                original.SetPixel(pp.X, pp.Y, Color.FromArgb(z, x, y));
                 pp.X++;
             }
             pictureBox1.Refresh();
             while (lastP != new Point(pp.X - 1, pp.Y))
             {
                 if (lastP.Y + 1 < pictureBox1.Height)
-                    FillPartSecond(new Point(lastP.X, lastP.Y + 1), ref pl);
+                    FillPartSecond(new Point(lastP.X, lastP.Y + 1));
                 if (lastP.Y - 1 > 0)
-                    FillPartSecond(new Point(lastP.X, lastP.Y - 1), ref pl);
+                    FillPartSecond(new Point(lastP.X, lastP.Y - 1));
                 lastP.X++;
             }
         }
@@ -176,7 +189,7 @@ namespace GraphicsLab3
             if (!isPart2)
                 FillPartFirst(startPixel, ref pl);
             else
-                FillPartSecond(startPixel, ref pl);
+                FillPartSecond(startPixel);
             pictureBox1.Refresh();
         }
 
