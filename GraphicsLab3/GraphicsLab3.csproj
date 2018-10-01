@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -59,6 +60,11 @@
     </Compile>
     <Compile Include="Task2.Designer.cs">
       <DependentUpon>Task2.cs</DependentUpon>
+    <Compile Include="Task1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Task1.Designer.cs">
+      <DependentUpon>Task1.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -74,6 +80,8 @@
     </Compile>
     <EmbeddedResource Include="Task2.resx">
       <DependentUpon>Task2.cs</DependentUpon>
+    <EmbeddedResource Include="Task1.resx">
+      <DependentUpon>Task1.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
