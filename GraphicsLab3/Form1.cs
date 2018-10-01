@@ -48,5 +48,11 @@ namespace GraphicsLab3
             task2.DrawImage(image);
             task2.ShowDialog();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var form = new Task1(textBox1.Text);
+            form.Show();
+        }
     }
 }
